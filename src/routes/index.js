@@ -12,6 +12,8 @@ const departureRecordRoutes = require("./departureRecordRoutes");
 const reportRoutes = require("./reportRoutes");
 const userRoutes = require("./userRoutes");
 const auditLogRoutes = require("./auditLogRoutes");
+
+const AUDIT_LOG_ENABLED = process.env.AUDIT_LOG_ENABLED === "true";
 const lookupRoutes = require("./lookupRoutes");
 const chatbotRoutes = require("./chatbot");
 const uploadRoutes = require("./uploadRoutes");
@@ -30,7 +32,9 @@ module.exports = (app) => {
   app.use("/api/departure-records", departureRecordRoutes);
   app.use("/api/reports", reportRoutes);
   app.use("/api/users", userRoutes);
-  app.use("/api/audit-logs", auditLogRoutes);
+  if (AUDIT_LOG_ENABLED) {
+    app.use("/api/audit-logs", auditLogRoutes);
+  }
   app.use("/api/lookup", lookupRoutes);
   app.use("/api/chatbot", chatbotRoutes);
   app.use("/api/upload", uploadRoutes);

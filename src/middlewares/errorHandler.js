@@ -1,5 +1,7 @@
 const AuditLogModel = require("../models/AuditLogModel");
 
+const AUDIT_LOG_ENABLED = process.env.AUDIT_LOG_ENABLED === "true";
+
 const ENV = process.env.NODE_ENV || "development";
 
 const ERROR_TYPES = {
@@ -47,6 +49,10 @@ const logError = (error) => {
 };
 
 const logAuditIfCritical = async (req, error) => {
+  if (!AUDIT_LOG_ENABLED) {
+    return;
+  }
+
   const criticalTypes = [
     ERROR_TYPES.AUTHORIZATION,
     ERROR_TYPES.SERVER,

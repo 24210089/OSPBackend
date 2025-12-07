@@ -1,5 +1,9 @@
 const AuditLogModel = require("../models/AuditLogModel");
 
+const AUDIT_LOG_ENABLED = process.env.AUDIT_LOG_ENABLED === "true";
+
+const noop = (_req, _res, next) => next();
+
 const buildPayload = ({
   req,
   action,
@@ -20,6 +24,10 @@ const buildPayload = ({
 const logAction =
   ({ action, tableName, getRecordId, getOldValue, getNewValue }) =>
   async (req, res, next) => {
+    if (!AUDIT_LOG_ENABLED) {
+      return next();
+    }
+
     res.on("finish", async () => {
       if (res.statusCode >= 400) {
         return;
@@ -47,6 +55,10 @@ const logAction =
 const logSensitiveAccess =
   ({ tableName = "health_records", getRecordId }) =>
   async (req, res, next) => {
+    if (!AUDIT_LOG_ENABLED) {
+      return next();
+    }
+
     res.on("finish", async () => {
       if (res.statusCode >= 400) {
         return;
