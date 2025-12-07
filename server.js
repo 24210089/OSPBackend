@@ -36,6 +36,28 @@ app.use(express.static(path.join(__dirname, "frontend")));
 // Attach all API routes
 registerRoutes(app);
 
+// Health check endpoint (verifies DB connectivity and reports environment)
+app.get("/health", async (req, res) => {
+  try {
+    const connection = await db.getConnection();
+    await connection.ping();
+    connection.release();
+
+    res.status(200).json({
+      status: "ok",
+      database: "connected",
+      environment: process.env.NODE_ENV || "development",
+      databaseSource: process.env.DATABASE_URL ? "railway" : "local",
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Database connection failed",
+      error: err.message,
+    });
+  }
+});
+
 // Fallback handlers for unmatched routes and errors
 app.use(notFound);
 app.use(errorHandler);
